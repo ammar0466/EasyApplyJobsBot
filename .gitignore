@@ -164,6 +164,7 @@ pytransform/
 
 #config file
 mainConfig.py
+config.py
 
 #testing file
 test.py

@@ -14,9 +14,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import prGreen, prRed, prYellow
 from webdriver_manager.chrome import ChromeDriverManager
+import json
 
 
 class Linkedin:
+
+    
+
     def __init__(self):
         prYellow("🌐 The Bot is starting.")
 
@@ -34,6 +38,7 @@ class Linkedin:
 
         if not self.checkIfLoggedIn():
             self.goToUrl("https://www.linkedin.com/login?trk=guest_homepage-basic_nav-header-signin")
+            #self.goToUrl("https://www.linkedin.com/")
 
             prYellow("🔄 Trying to log in linkedin...")
             try:    
@@ -323,13 +328,16 @@ class Linkedin:
 
         return False
 
-    
+
     def handleMultiplePages(self, jobPage, jobProperties: models.Job, jobCounter: models.JobCounter):
         utils.interact(lambda : self.clickIfExists(By.CSS_SELECTOR, "button[aria-label='Continue to next step']"))
 
         comPercentage = self.driver.find_element(By.XPATH,'html/body/div[3]/div/div/div[2]/div/div/span').text
         percentage = int(comPercentage[0:comPercentage.index("%")])
         applyPages = math.ceil(100 / percentage) - 2
+        with open('answer.json') as f:
+            answers = json.load(f)
+
         try:
             for _ in range(applyPages):
                 self.handleApplicationStep()
@@ -338,10 +346,72 @@ class Linkedin:
             self.handleApplicationStep()
             utils.interact(lambda : self.clickIfExists(By.CSS_SELECTOR,"button[aria-label='Review your application']"))
 
+
+
             jobCounter = self.handleSubmitPage(jobPage, jobProperties, jobCounter)
         except:
+            # Find each question grouping
+            # groupings = self.driver.find_elements(By.CSS_SELECTOR, '.jobs-easy-apply-form-section__grouping')
+            # groupings = self.driver.find_elements(By.CSS_SELECTOR, '.jobs-easy-apply-form-section__grouping')
+            groupings = self.driver.find_elements(By.XPATH, '//form/div/div/div')
+            #count groupings
+            print("totalQ " + str(len(groupings)))
+            # print(groupings)
+            # for grouping in groupings:
+            # for i in range(len(groupings)):
+            for i, grouping in enumerate(groupings):
+                # Check if the question is a multiple choice question
+                # Access each grouping individually by index
+                # grouping = self.driver.find_elements(By.CSS_SELECTOR, '.jobs-easy-apply-form-section__grouping')[i]
+                # grouping = self.driver.find_elements(By.XPATH, '//form/div/div/div')[i]
+                grouping = groupings[i]
+                print("QUESTION " + str(i))
+                multiple_choice_elements = grouping.find_elements(By.CSS_SELECTOR, 'div.fb-text-selectable__option.display-flex')
+                if multiple_choice_elements:
+                    question = grouping.find_element(By.CSS_SELECTOR, 'span[data-test-form-builder-radio-button-form-component__title] > span:not(.visually-hidden)').text.strip()
+                    print(question)
+                    # answers = [option.find_element(By.TAG_NAME, 'label').text.strip() for option in multiple_choice_elements]
+                    # if question in answers:
+                    #     answer = answers[question]
+                    #     # Find the option that matches the answer and click it
+                    #     for option in multiple_choice_elements:
+                    #         if option.find_element(By.TAG_NAME, 'label').text.strip() == answer:
+                    #             option.click()
+                    #             break
+                else:
+                    # Check if the question is a text input question
+                    input_elements = grouping.find_elements(By.TAG_NAME, 'input')
+                    if input_elements:
+                        label_for = input_elements[0].get_attribute('id')
+                        label = self.driver.find_element(By.CSS_SELECTOR, f'label[for="{label_for}"]')
+                        question = label.text.strip()
+                        print(question)
+                        if question in answers:
+                            answer = answers[question]
+                            input_elements[0].send_keys(answer)
+                    else:
+                        # The question is a dropdown question
+                        select_elements = grouping.find_elements(By.TAG_NAME, 'select')
+                        # question = grouping.find_element(By.CSS_SELECTOR, 'label.artdeco-dropdown__label').text.strip()
+                        question = grouping.find_element(By.CSS_SELECTOR, 'label span[aria-hidden="true"]').text.strip()
+
+                        print(question)
+                        # if select_elements and question in answers:
+                        #     answer = answers[question]
+                        #     # Find the option that matches the answer and select it
+                        #     for option in select_elements[0].find_elements(By.TAG_NAME, 'option'):
+                        #         if option.text.strip() == answer:
+                        #             option.click()
+                        #             break
+                # append Question to map in answer.py, answers = {question: answer}
+            if question not in answers:
+                # Add it to the dictionary
+                answers[question] = ''  
+                # Save the dictionary to the JSON file
+                with open('answer.json', 'w') as f:
+                    json.dump(answers, f, indent=4)
+
             jobCounter.skipped_unanswered_questions += 1
-            # TODO Instead of except, output which questions need to be answered
             lineToWrite = self.getLogTextForJobProperties(jobProperties, jobCounter) + " | " + "* 🥵  " + str(applyPages) + " Pages, couldn't apply to this job! Extra info needed. Link: " + str(jobPage)
             self.displayWriteResults(lineToWrite)
 

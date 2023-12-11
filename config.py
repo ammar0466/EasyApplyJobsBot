@@ -1,21 +1,24 @@
 # Enter your Linkedin password and username below. Do not commit this file after entering these credentials.
 # Linkedin credentials
-email = "YourLinkedin@UserEmail.com"
-password = "YourLinkedinPassword"
+email = "ammar0466@gmail.com"
+password = "solidsnake1234"
 
 # Optional! run browser in headless mode, no browser screen will be shown it will work in background.
 headless = False
 # Chrome driver installed path. Leave empty if you want to install Chrome when you run the bot
-chromeDriverPath = ""
+# chromeDriverPath = ""C:\Users\anima\OneDrive\Desktop\chromedriver-win64\chromedriver.exe""
+chromeDriverPath = "C:/Users/anima/OneDrive/Desktop/chromedriver-win64/chromedriver.exe"
+
 # If you left above credentials fields empty. For Chrome enter profile dir to run the bot to prevent logging in your account each time
 # get Chrome profile path by typing following url: chrome://version/
 chromeProfilePath = r""
 
 # location you want to search the jobs - ex : ["Poland", "Singapore", "New York City Metropolitan Area", "Monroe County"]
 # continent locations:["Europe", "Asia", "Australia", "NorthAmerica", "SouthAmerica", "Africa", "Australia"]
-location = ["NorthAmerica"]
+location = ["Petaling Jaya"]
 # keywords related with your job search
-keywords = ["frontend", "react", "typescript","javascript", "vue", "python", "programming", "blockchain"]
+keywords = ["data engineer"]
+jobTitles = ["data engineer"]
 #job experience Level - ex:  ["Internship", "Entry level" , "Associate" , "Mid-Senior level" , "Director" , "Executive"]
 experienceLevels = [ "Entry level" ]
 #job posted date - ex: ["Any Time", "Past Month" , "Past Week" , "Past 24 hours"] - select only one
