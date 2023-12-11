@@ -1,7 +1,7 @@
 # Enter your Linkedin password and username below. Do not commit this file after entering these credentials.
 # Linkedin credentials
-email = "ammar0466@gmail.com"
-password = "solidsnake1234"
+email = "user@.com"
+password = ""
 
 # Optional! run browser in headless mode, no browser screen will be shown it will work in background.
 headless = False
